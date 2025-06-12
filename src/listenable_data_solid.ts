@@ -78,17 +78,24 @@ export const createListenableData: CreateListenableDataFunction = (initialValue?
 
     function useSignal(...path: string[]) {
         const [getter, setter] = createSignal<any>()
+
+        // 用 setFunc 来避免 value 为 function 时，setter 无法正常工作
+        let setValue: any = undefined;
+        function setFunc() {
+            return setValue
+        }
         
-        function handler(value: any) {
-            setter(value)
-            data.addListener(path, handler)
+        function onValueChange(value: any) {
+            setValue = value
+            setter(setFunc)
+            setValue = undefined
         }
 
-        const initialValue = data.addListener(path, handler)
-        setter(initialValue)
+        const initialValue = data.addListener(path, onValueChange)
+        onValueChange(initialValue)
 
         onCleanup(() => {
-            data.removeListener(path, handler)
+            data.removeListener(path, onValueChange)
         })
 
         return getter

@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ListenableData, ChangeHandler } from '../listenable_data';
+import { ListenableData, ChangeListener } from '../listenable_data';
 
 describe('ListenableData', () => {
     let listenableData: ListenableData;
-    let mockHandler: ChangeHandler;
+    let mockHandler: ChangeListener;
 
     beforeEach(() => {
         listenableData = new ListenableData();
@@ -93,7 +93,7 @@ describe('ListenableData', () => {
             expect(result).toBe('Alice');
         });
 
-        it('监听器触发后应该自动删除', () => {
+        it('监听器触发后还能再次触发', () => {
             listenableData.addListener(['user', 'name'], mockHandler);
             listenableData.setValue(['user', 'name'], 'Alice');
             
@@ -101,61 +101,10 @@ describe('ListenableData', () => {
             expect(mockHandler).toHaveBeenCalledWith('Alice');
             expect(mockHandler).toHaveBeenCalledTimes(1);
             
-            // 再次设置值，监听器不应该被触发（因为已经被删除了）
+            // 再次设置值
             listenableData.setValue(['user', 'name'], 'Bob');
-            expect(mockHandler).toHaveBeenCalledTimes(1); // 仍然只被调用一次
-        });
-
-        it('多个监听器触发后都应该自动删除', () => {
-            const handler1 = vi.fn();
-            const handler2 = vi.fn();
-            
-            listenableData.addListener(['user', 'name'], handler1);
-            listenableData.addListener(['user', 'name'], handler2);
-            listenableData.setValue(['user', 'name'], 'Alice');
-            
-            // 第一次触发
-            expect(handler1).toHaveBeenCalledWith('Alice');
-            expect(handler2).toHaveBeenCalledWith('Alice');
-            expect(handler1).toHaveBeenCalledTimes(1);
-            expect(handler2).toHaveBeenCalledTimes(1);
-            
-            // 再次设置值，监听器不应该被触发
-            listenableData.setValue(['user', 'name'], 'Bob');
-            expect(handler1).toHaveBeenCalledTimes(1);
-            expect(handler2).toHaveBeenCalledTimes(1);
-        });
-
-        it('父级路径的监听器触发后也应该自动删除', () => {
-            listenableData.addListener(['user'], mockHandler);
-            listenableData.setValue(['user', 'name'], 'Alice');
-            
-            // 第一次触发
-            expect(mockHandler).toHaveBeenCalledWith({
-                name: 'Alice'
-            });
-            expect(mockHandler).toHaveBeenCalledTimes(1);
-            
-            // 再次设置值，监听器不应该被触发
-            listenableData.setValue(['user', 'age'], 25);
-            expect(mockHandler).toHaveBeenCalledTimes(1);
-        });
-
-        it('根路径的监听器触发后也应该自动删除', () => {
-            listenableData.addListener([], mockHandler);
-            listenableData.setValue(['user', 'name'], 'Alice');
-            
-            // 第一次触发
-            expect(mockHandler).toHaveBeenCalledWith({
-                user: {
-                    name: 'Alice'
-                }
-            });
-            expect(mockHandler).toHaveBeenCalledTimes(1);
-            
-            // 再次设置值，监听器不应该被触发
-            listenableData.setValue(['config', 'enabled'], true);
-            expect(mockHandler).toHaveBeenCalledTimes(1);
+            expect(mockHandler).toHaveBeenCalledWith('Bob');
+            expect(mockHandler).toHaveBeenCalledTimes(2);
         });
     });
 
@@ -239,7 +188,7 @@ describe('ListenableData', () => {
             expect(mockHandler).not.toHaveBeenCalled();
         });
 
-        it('移除监听器后，自动删除特性仍然有效', () => {
+        it('移除监听器后，仍然能添加监听器', () => {
             listenableData.addListener(['user', 'name'], mockHandler);
             listenableData.removeListener(['user', 'name'], mockHandler);
             
@@ -251,9 +200,10 @@ describe('ListenableData', () => {
             expect(mockHandler).toHaveBeenCalledWith('Alice');
             expect(mockHandler).toHaveBeenCalledTimes(1);
             
-            // 再次设置值，监听器不应该被触发（自动删除特性）
+            // 再次设置值，监听器应该被触发
             listenableData.setValue(['user', 'name'], 'Bob');
-            expect(mockHandler).toHaveBeenCalledTimes(1);
+            expect(mockHandler).toHaveBeenCalledWith('Bob');
+            expect(mockHandler).toHaveBeenCalledTimes(2);
         });
     });
 

@@ -1,307 +1,258 @@
 
-export type ChangeHandler = (value: any) => void;
+export type ChangeListener = (value: any) => void;
 
-interface ListenableDataNode {
-    leafValue?: any;
-    handlers?: Set<ChangeHandler>;
-    children?: Map<string, ListenableDataNode>;
+const ListenersKey = Symbol('ListenersKey');
+
+interface ListenerNode {
+    [key: string]: ListenerNode;
+    [ListenersKey]?: Set<ChangeListener>;
+}
+
+interface DataNode {
+    [key: string]: DataNode | Exclude<any, DataNode | undefined | null>;
 }
 
 export class ListenableData {
-    private rootParentNode: ListenableDataNode = {};
-    private tmpNodeStack = new Array<ListenableDataNode>();
+    private listenerRootParent: ListenerNode = {};
+    private dataRootParent: DataNode = {};
+
+    private tmpListenerNodeStack = new Array<ListenerNode>();
+    private tmpDataNodeStack = new Array<DataNode>();
 
     /**
      * 添加监听器。
-     * 注意：监听器一旦被触发，就会自动被移除。
      * @param path 路径
      * @param handler 处理函数
      * @returns 当前路径的值
      */
-    addListener(path: string[], handler: ChangeHandler) {
-        let node = this.rootParentNode;
+    addListener(path: string[], handler: ChangeListener) {
+        let listenerNode = this.listenerRootParent;
+        let dataNode: DataNode | undefined = this.dataRootParent;
         for (let i = -1; i < path.length; ++i) {
             const key = i < 0 ? 'R' : path[i];
-            let children = node.children;
-            if (!children) {
-                children = new Map();
-                node.children = children;
-            }
-            let c = children.get(key);
+            let c = listenerNode[key];
             if (c === undefined) {
                 c = {};
-                children.set(key, c);
+                listenerNode[key] = c;
             }
-            node = c;
+            listenerNode = c;
+            dataNode = dataNode?.[key];
         }
-        let handlers = node.handlers;
-        if (handlers === undefined) {
-            handlers = new Set();
-            node.handlers = handlers;
+        let listeners = listenerNode[ListenersKey];
+        if (listeners === undefined) {
+            listeners = new Set();
+            listenerNode[ListenersKey] = listeners;
         }
-        handlers.add(handler);
-        return getValueByNode(node);
+        listeners.add(handler);
+        return dataNode;
     }
 
-    removeListener(path: string[], handler: ChangeHandler) {
-        const tmpNodeStack = this.tmpNodeStack;
-        let node = this.rootParentNode;
+    removeListener(path: string[], handler: ChangeListener) {
+        const tmpListenerNodeStack = this.tmpListenerNodeStack;
+        let listenerNode = this.listenerRootParent;
+        tmpListenerNodeStack[0] = listenerNode;
         for (let i = -1; i < path.length; ++i) {
             const key = i < 0 ? 'R' : path[i];
-            let children = node.children;
-            if (!children) {
-                children = new Map();
-                node.children = children;
-            }
-            let c = children.get(key);
+            let c = listenerNode[key];
             if (c === undefined) {
                 c = {};
-                children.set(key, c);
+                listenerNode[key] = c;
             }
-            node = c;
-            tmpNodeStack[i + 1] = node;
+            listenerNode = c;
+            tmpListenerNodeStack[i + 2] = listenerNode;
         }
-        const handlers = node.handlers;
+        // tmpListenerNodeStack 的长度为 path.length + 2
+        const handlers = listenerNode[ListenersKey];
         if (handlers !== undefined) {
             handlers.delete(handler);
             if (handlers.size === 0) {
-                delete node.handlers;
+                delete listenerNode[ListenersKey];
             }
         }
-        // 从下往上遍历节点，清理无用节点
-        for (let i = path.length; i > 0; --i) {
-            const node = tmpNodeStack[i];
-            if (node.handlers === undefined && node.children === undefined && node.leafValue === undefined) {
-                const parentNode = tmpNodeStack[i - 1];
-                const key = path[i - 1];
-                const parentChildren = parentNode.children!;
-                parentChildren.delete(key);
-                if (parentChildren.size === 0) {
-                    delete parentNode.children;
-                }
+        // 从下往上遍历 ListenerNode 节点，清理无用节点
+        for (let i = path.length + 1; i > 0; --i) {
+            const node = tmpListenerNodeStack[i];
+            if (!(ListenersKey in node) && isEmpty(node)) {
+                const parentNode = tmpListenerNodeStack[i - 1];
+                const key = i === 1 ? 'R' : path[i - 2];
+                delete parentNode[key];
             }
         }
     }
 
     getValue(path: string[]): any {
-        let node = this.rootParentNode;
+        let node = this.dataRootParent;
         for (let i = -1; i < path.length; ++i) {
             const key = i < 0 ? 'R' : path[i];
-            let children = node.children;
-            if (!children) {
-                return undefined;
-            }
-            let c = children.get(key);
+            let c = node[key];
             if (c === undefined) {
                 return undefined;
             }
             node = c;
         }
-        return getValueByNode(node);
+        return node;
     }
 
     setValue(path: string[], value: any) {
-        const tmpNodeStack = this.tmpNodeStack;
-        let node = this.rootParentNode;
+        const tmpListenerNodeStack = this.tmpListenerNodeStack;
+        const tmpDataNodeStack = this.tmpDataNodeStack;
+        let listenerNode : ListenerNode | undefined = this.listenerRootParent;
+        let dataNode = this.dataRootParent;
+        tmpListenerNodeStack[0] = listenerNode;
+        tmpDataNodeStack[0] = dataNode;
         for (let i = -1; i < path.length - 1; ++i) {
             const key = i < 0 ? 'R' : path[i];
-            let children = node.children;
-            if (!children) {
-                children = new Map();
-                node.children = children;
-            }
-            let c = children.get(key);
+            listenerNode = listenerNode?.[key];
+            let c = dataNode[key];
             if (c === undefined) {
                 c = {};
-                children.set(key, c);
+                dataNode[key] = c;
             }
-            node = c;
-            tmpNodeStack[i + 1] = node;
-            delete node.leafValue;
+            dataNode = c;
+            tmpListenerNodeStack[i + 2] = listenerNode;
+            tmpDataNodeStack[i + 2] = dataNode;
         }
+        // tmpListenerNodeStack, tmpDataNodeStack 的长度都为 path.length + 1
 
         const key = path.length === 0 ? 'R' : path[path.length - 1];
-        if (setValueInternal(node, key, value)) {
-            // 从下往上遍历节点，触发处理函数，以及清理无用节点
-            for (let i = path.length - 1; i >= 0; --i) {
-                const node = tmpNodeStack[i];
-                const handlers = node.handlers;
-                if (handlers !== undefined) {
-                    for (const handler of handlers) {
-                        const v = getValueByNode(node);
-                        handler(v);
-                    }
-                    delete node.handlers;
+        if (setValueInternal(dataNode, key, value, listenerNode?.[key])) {
+            // 从下往上遍历节点，检测是否需要删除，然后触发函数
+            for (let i = path.length; i > 0; --i) {
+                const listenerNode = tmpListenerNodeStack[i];
+
+                let dataNode: any = tmpDataNodeStack[i];
+                if (isEmpty(dataNode)) {
+                    const parentNode = tmpDataNodeStack[i - 1];
+                    const key = i === 1 ? 'R' : path[i - 2];
+                    delete parentNode[key];
+                    dataNode = undefined;
                 }
-                if (i > 0) {
-                    if (node.handlers === undefined && node.children === undefined && node.leafValue === undefined) {
-                        const parentNode = tmpNodeStack[i - 1];
-                        const key = path[i - 1];
-                        const parentChildren = parentNode.children!;
-                        parentChildren.delete(key);
-                        if (parentChildren.size === 0) {
-                            delete parentNode.children;
-                        }
-                    }
+                if (listenerNode !== undefined) {
+                    invokeHandlers(listenerNode, dataNode);
                 }
             }
-            tmpNodeStack.length = 0;
         }
+        tmpListenerNodeStack.length = 0;
+        tmpDataNodeStack.length = 0;
     }
 }
 
-function getValueByNode(node: ListenableDataNode): any {
-    if (node.leafValue !== undefined) {
-        return node.leafValue;
+function setValueInternal(parentDataNode: DataNode, key: string, value: any, listenerNode: ListenerNode | undefined): boolean {
+    if (value === null) {
+        value = undefined;
     }
-    const children = node.children;
-    if (children === undefined) {
-        return undefined;
-    }
-    let result: any = undefined;
-    for (const [key, child] of children.entries()) {
-        const value = getValueByNode(child);
-        if (value !== undefined) {
-            if (result === undefined) {
-                result = {} as any;
-            }
-            result[key] = value;
-        }
-    }
-    return result;
-}
 
-function removeNode(parentNode: ListenableDataNode, key: string): boolean {
-    const parentChildren = parentNode.children;
-    if (parentChildren === undefined) {
-        return false;
-    }
-    const node = parentChildren.get(key);
-    if (node === undefined) {
-        return false;
-    }
     let dirty = false;
-    const handlers = node.handlers;
-    if (handlers !== undefined) {
-        for (const handler of handlers) {
-            handler(undefined);
+    let oldValue = parentDataNode[key];
+    const oldIsComplex = isComplexData(oldValue);
+    const newIsComplex = isComplexData(value);
+
+    // 旧变成新所有情况表：
+    // | 旧\新    | 叶子数据 | 空      | 复杂数据 |
+    // | ---      | ---      | ---     | ---     |
+    // | 叶子数据 | 当前通知  | 当前通知 | 复杂通知 |
+    // | 空      | 当前通知   |         | 复杂通知 |
+    // | 复杂数据 | 复杂通知  | 复杂通知 | 复杂通知 |
+
+    if (newIsComplex) {
+        // 匹配旧变成新最右边一列的情况
+        // 需要递归设置数据，顺便通知整个 listenerNode 子树
+
+        if (!oldIsComplex) {
+            // 原本是叶子数据或者空，现在被设置成复杂数据，需要创建一个空对象
+            oldValue = {};
+            parentDataNode[key] = oldValue;
+            dirty = true;
         }
-        delete node.handlers;
-        dirty = true;
-    }
-    const children = node.children;
-    if (children !== undefined) {
-        for (const key1 of children.keys()) {
-            if (removeNode(node, key1)) {
-                dirty = true;
-            }
-        }
-        delete node.children;
-    }
-    if (node.leafValue !== undefined) {
-        node.leafValue = undefined;
-        dirty = true;
-    }
-    parentChildren.delete(key);
-    if (parentChildren.size === 0) {
-        delete parentNode.children;
-    }
-    return dirty;
-}
 
-function setValueInternal(parentNode: ListenableDataNode, key: string, value: any): boolean {
-    if (value === null || value === undefined) {
-        // 对于空 value，直接删除节点
-        return removeNode(parentNode, key);
-    }
-
-    let parentChildren = parentNode.children;
-    if (parentChildren === undefined) {
-        parentChildren = new Map();
-        parentNode.children = parentChildren;
-    }
-    let node = parentChildren.get(key);
-    if (node === undefined) {
-        node = {};
-        parentChildren.set(key, node);
-    }
-
-    if (typeof value !== 'object' || Array.isArray(value)) {
-        // 对于非对象和数组，直接设置为叶子节点
-        let dirty = false;
-        const children = node.children;
-        if (children !== undefined) {
-            for (const key1 of children.keys()) {
-                if (removeNode(node, key1)) {
+        // 先处理 oldValue 中存在，但是 value 中不存在的 key
+        for (const key in oldValue) {
+            if (!(key in value)) {
+                // 删除旧的 key
+                if (setValueInternal(oldValue, key, undefined, listenerNode?.[key])) {
                     dirty = true;
                 }
             }
-            node.children = undefined;
         }
-        if (node.leafValue !== value) {
-            node.leafValue = value;
-            dirty = true;
-            const handlers = node.handlers;
-            if (handlers !== undefined) {
-                for (const handler of handlers) {
-                    handler(value);
-                }
-                delete node.handlers;
+
+        // 再处理 value 中存在的 key
+        for (const key in value) {
+            // 这里有可能是添加、更新、删除
+            if (setValueInternal(oldValue, key, value[key], listenerNode?.[key])) {
+                dirty = true;
             }
         }
-        return dirty;
-    }
 
-    // 对于对象，需要遍历新旧 key，并设置子节点
-    let dirty = false;
-    if (node.leafValue !== undefined) {
-        node.leafValue = undefined;
+    } else if (oldIsComplex) {
+        // 匹配旧变成新最下面一行的前两列的情况
+        // 直接修改当前节点数据，然后通知整个 listenerNode 子树数据变空
+        
+        if (value === undefined) {
+            delete parentDataNode[key];
+        } else {
+            parentDataNode[key] = value;
+        }
         dirty = true;
+
+        if (listenerNode !== undefined) {
+            invokeChildrenEmpty(listenerNode);
+        }
+    } else {
+        // 匹配旧变成新左上角2x2 格子的情况
+        if (value === undefined) {
+            delete parentDataNode[key];
+        } else {
+            parentDataNode[key] = value;
+        }
+
+        dirty = oldValue !== value;
     }
 
-    const newKeys = Object.keys(value);
-    let children = node.children;
-    if (children !== undefined) {
-        for (const key of children.keys()) {
-            {
-                // 如果 key 在 newKeys 中，则将 key 删除。使用交换法删除。
-                const i = newKeys.indexOf(key);
-                if (i >= 0) {
-                    const lastKey = newKeys.pop();
-                    if (lastKey !== undefined && newKeys.length > 0) {
-                        newKeys[i] = lastKey;
-                    }
-                }
-            } 
-            const v = value[key];
-            if (setValueInternal(node, key, v)) {
-                dirty = true;
-            }
-        }
-    }
-    if (newKeys.length > 0) {
-        if (children === undefined) {
-            children = new Map();
-            node.children = children;
-        }
-        // 新的 key 需要设置子节点
-        for (const key of newKeys) {
-            const v = value[key];
-            if (setValueInternal(node, key, v)) {
-                dirty = true;
-            }
-        }
-    }
-
-    if (dirty) {
-        const handlers = node.handlers;
-        if (handlers !== undefined) {
-            for (const handler of handlers) {
-                handler(value);
-            }
-            delete node.handlers;
-        }
+    // 如果 dirty 为 true，则触发当前节点的监听函数
+    if (dirty && listenerNode !== undefined) {
+        invokeHandlers(listenerNode, value);
     }
 
     return dirty;
+}
+
+function isComplexData(value: Exclude<any, null>) {
+    return typeof value === 'object' && !Array.isArray(value);
+}
+
+function isEmpty(obj: object) {
+    for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function invokeChildrenEmpty(listenerNode: ListenerNode) {
+    for (const key in listenerNode) {
+        const childListenerNode = listenerNode[key];
+        invokeChildrenEmpty(childListenerNode);
+        invokeHandlers(childListenerNode, undefined);
+    }
+}
+
+function invokeHandlers(listenerNode: ListenerNode, value: any) {
+    const listeners = listenerNode[ListenersKey];
+    if (listeners === undefined) {
+        return;
+    }
+
+    for (const handler of listeners) {
+        try {
+            handler(value);
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error('Handler error:', error.message);
+                console.error('Stack trace:', error.stack);
+            } else {
+                console.error('Unknown error:', error);
+            }
+        }
+    }
 }
