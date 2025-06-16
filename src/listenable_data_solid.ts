@@ -42,12 +42,12 @@ export interface SetValueFunction<T> {
 
 export interface GetValueFunction<T> {
     (): T;
-    <K1 extends KeyOf<W<T>>>(k1: Part<W<T>, K1>): W<T>[K1];
-    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>): W<W<T>[K1]>[K2];
-    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>, K3 extends KeyOf<W<W<W<T>[K1]>[K2]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>, k3: Part<W<W<W<T>[K1]>[K2]>, K3>): W<W<W<T>[K1]>[K2]>[K3];
-    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>, K3 extends KeyOf<W<W<W<T>[K1]>[K2]>>, K4 extends KeyOf<W<W<W<W<T>[K1]>[K2]>[K3]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>, k3: Part<W<W<W<T>[K1]>[K2]>, K3>, k4: Part<W<W<W<W<T>[K1]>[K2]>[K3]>, K4>): W<W<W<W<T>[K1]>[K2]>[K3]>[K4];
-    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>, K3 extends KeyOf<W<W<W<T>[K1]>[K2]>>, K4 extends KeyOf<W<W<W<W<T>[K1]>[K2]>[K3]>>, K5 extends KeyOf<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>, k3: Part<W<W<W<T>[K1]>[K2]>, K3>, k4: Part<W<W<W<W<T>[K1]>[K2]>[K3]>, K4>, k5: Part<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>, K5>): W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>[K5];
-    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>, K3 extends KeyOf<W<W<W<T>[K1]>[K2]>>, K4 extends KeyOf<W<W<W<W<T>[K1]>[K2]>[K3]>>, K5 extends KeyOf<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>>, K6 extends KeyOf<W<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>[K5]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>, k3: Part<W<W<W<T>[K1]>[K2]>, K3>, k4: Part<W<W<W<W<T>[K1]>[K2]>[K3]>, K4>, k5: Part<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>, K5>, k6: Part<W<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>[K5]>, K6>): W<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>[K5]>[K6];
+    <K1 extends KeyOf<W<T>>>(k1: Part<W<T>, K1>): W<T>[K1] | undefined;
+    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>): W<W<T>[K1]>[K2] | undefined;
+    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>, K3 extends KeyOf<W<W<W<T>[K1]>[K2]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>, k3: Part<W<W<W<T>[K1]>[K2]>, K3>): W<W<W<T>[K1]>[K2]>[K3] | undefined;
+    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>, K3 extends KeyOf<W<W<W<T>[K1]>[K2]>>, K4 extends KeyOf<W<W<W<W<T>[K1]>[K2]>[K3]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>, k3: Part<W<W<W<T>[K1]>[K2]>, K3>, k4: Part<W<W<W<W<T>[K1]>[K2]>[K3]>, K4>): W<W<W<W<T>[K1]>[K2]>[K3]>[K4] | undefined;
+    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>, K3 extends KeyOf<W<W<W<T>[K1]>[K2]>>, K4 extends KeyOf<W<W<W<W<T>[K1]>[K2]>[K3]>>, K5 extends KeyOf<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>, k3: Part<W<W<W<T>[K1]>[K2]>, K3>, k4: Part<W<W<W<W<T>[K1]>[K2]>[K3]>, K4>, k5: Part<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>, K5>): W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>[K5] | undefined;
+    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>, K3 extends KeyOf<W<W<W<T>[K1]>[K2]>>, K4 extends KeyOf<W<W<W<W<T>[K1]>[K2]>[K3]>>, K5 extends KeyOf<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>>, K6 extends KeyOf<W<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>[K5]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>, k3: Part<W<W<W<T>[K1]>[K2]>, K3>, k4: Part<W<W<W<W<T>[K1]>[K2]>[K3]>, K4>, k5: Part<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>, K5>, k6: Part<W<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>[K5]>, K6>): W<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>[K5]>[K6] | undefined;
 }
 
 export interface UseSignalFunction<T> {
@@ -60,23 +60,36 @@ export interface UseSignalFunction<T> {
     <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>, K3 extends KeyOf<W<W<W<T>[K1]>[K2]>>, K4 extends KeyOf<W<W<W<W<T>[K1]>[K2]>[K3]>>, K5 extends KeyOf<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>>, K6 extends KeyOf<W<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>[K5]>>, K7 extends MutableKeyOf<W<W<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>[K5]>[K6]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>, k3: Part<W<W<W<T>[K1]>[K2]>, K3>, k4: Part<W<W<W<W<T>[K1]>[K2]>[K3]>, K4>, k5: Part<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>, K5>, k6: Part<W<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>[K5]>, K6>, k7: Part<W<W<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>[K5]>[K6]>, K7>): Accessor<W<W<W<W<W<W<W<T>[K1]>[K2]>[K3]>[K4]>[K5]>[K6]>[K7] | undefined>;
 }
 
+export interface SubFunction<T> {
+    <K1 extends KeyOf<W<T>>>(k1: Part<W<T>, K1>): ListanableDataSolid<W<T>[K1]>;
+    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>): ListanableDataSolid<W<W<T>[K1]>[K2]>;
+    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>, K3 extends KeyOf<W<W<W<T>[K1]>[K2]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>, k3: Part<W<W<W<T>[K1]>[K2]>, K3>): ListanableDataSolid<W<W<W<T>[K1]>[K2]>[K3]>;
+}
+
 // 定义返回值类型
-interface CreateListenableDataReturn<T> {
-  setValue: SetValueFunction<T>;
-  getValue: GetValueFunction<T>;
-  useSignal: UseSignalFunction<T>;
+export interface ListanableDataSolid<T> {
+    setValue: SetValueFunction<T>;
+    getValue: GetValueFunction<T>;
+    useSignal: UseSignalFunction<T>;
+    sub: SubFunction<T>;
 }
 
 interface CreateListenableDataFunction {
-    <T>(): CreateListenableDataReturn<T | undefined>;
-    <T>(initialValue: T): CreateListenableDataReturn<T>;
+    <T>(): ListanableDataSolid<T | undefined>;
+    <T>(initialValue: T): ListanableDataSolid<T>;
 }
 
 export const createListenableData: CreateListenableDataFunction = (initialValue?: any) => {
     const data = new ListenableData();
     data.setValue([], initialValue);
 
+    return createListenableDataInternal(data);
+}
+
+function createListenableDataInternal(data: ListenableData, basePath?: string[]) {
     function useSignal(...path: string[]) {
+        const fullPath = basePath ? [...basePath, ...path] : path;
+
         const [getter, setter] = createSignal<any>()
 
         // 用 setFunc 来避免 value 为 function 时，setter 无法正常工作
@@ -91,23 +104,26 @@ export const createListenableData: CreateListenableDataFunction = (initialValue?
             setValue = undefined
         }
 
-        const initialValue = data.addListener(path, onValueChange)
+        const initialValue = data.addListener(fullPath, onValueChange)
         onValueChange(initialValue)
 
         onCleanup(() => {
-            data.removeListener(path, onValueChange)
+            data.removeListener(fullPath, onValueChange)
         })
 
         return getter
     }
 
+    function setValue(...args: any[]) {
+        const fullPath = basePath ? [...basePath, ...args.slice(0, -1)] : args.slice(0, -1);
+        const value = args[args.length - 1]
+        data.setValue(fullPath, value)
+    }
+
     return {
-        setValue(...args: any[]) {
-            const path = args.slice(0, -1)
-            const value = args[args.length - 1]
-            data.setValue(path, value)
-        },
-        getValue: (...path: string[]) => data.getValue(path),
+        setValue,
+        getValue: (...path: string[]) => data.getValue(basePath ? [...basePath, ...path] : path),
         useSignal,
+        sub: (...path: string[]) => createListenableDataInternal(data, basePath ? [...basePath, ...path] : path),
     }
 }
