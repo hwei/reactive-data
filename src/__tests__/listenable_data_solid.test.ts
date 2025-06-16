@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { createRoot, createEffect } from 'solid-js'
 import { createListenableData } from '../listenable_data_solid'
 
@@ -76,7 +76,7 @@ describe('createListenableData', () => {
         })
 
         it('子对象应该能够独立设置和获取值', () => {
-            const { sub, setValue, getValue } = createListenableData<UserData>()
+            const { sub, getValue } = createListenableData<UserData>()
             
             // 创建 user 子对象
             const userSub = sub('user')
