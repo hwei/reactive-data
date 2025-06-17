@@ -1,0 +1,51 @@
+{
+  "name": "reactive-data-solid",
+  "version": "1.0.0",
+  "description": "Solid.js integration for reactive-data",
+  "type": "module",
+  "main": "dist/reactive-data-solid.cjs",
+  "module": "dist/reactive-data-solid.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "typescript",
+    "reactive",
+    "solid-js",
+    "library"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "@vitest/ui": "^1.0.0",
+    "eslint": "^8.54.0",
+    "jsdom": "^26.1.0",
+    "typescript": "^5.3.0",
+    "vite": "^5.0.0",
+    "vite-plugin-dts": "^3.7.0",
+    "vite-plugin-solid": "^2.11.6",
+    "vitest": "^1.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.7",
+    "reactive-data": "file:../reactive-data"
+  }
+} 

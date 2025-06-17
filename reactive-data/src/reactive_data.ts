@@ -1,4 +1,3 @@
-
 export type ChangeListener = (value: any) => void;
 
 const CHANGE_LISTENERS = Symbol('CHANGE_LISTENERS');
@@ -322,4 +321,4 @@ function invokeNewKeyListeners(reactiveNode: ReactiveNode, key: string, value: a
             childChangeListenerSet.add(changeListener);
         }
     }
-}
+} 

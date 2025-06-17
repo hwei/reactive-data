@@ -1,5 +1,5 @@
 import { createSignal, onCleanup, Accessor } from "solid-js"
-import { ReactiveData } from "./reactive_data"
+import { ReactiveData } from "reactive-data"
 
 
 export type PickMutable<T> = {

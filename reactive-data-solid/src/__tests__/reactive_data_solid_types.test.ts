@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { createRoot } from 'solid-js'
-import { createReactiveData } from '../reactive_data_solid'
+import { createReactiveData } from '../index'
 
 // 定义测试用的类型
 interface User {
