@@ -48,7 +48,7 @@ describe('ListenableData', () => {
 
     describe('监听器测试', () => {
         it('应该能够添加监听器并触发回调', () => {
-            listenableData.addListener(['user', 'name'], mockHandler);
+            listenableData.addChangeListener(['user', 'name'], mockHandler);
             listenableData.setValue(['user', 'name'], 'Alice');
             
             expect(mockHandler).toHaveBeenCalledWith('Alice');
@@ -59,8 +59,8 @@ describe('ListenableData', () => {
             const handler1 = vi.fn();
             const handler2 = vi.fn();
             
-            listenableData.addListener(['user', 'name'], handler1);
-            listenableData.addListener(['user', 'name'], handler2);
+            listenableData.addChangeListener(['user', 'name'], handler1);
+            listenableData.addChangeListener(['user', 'name'], handler2);
             listenableData.setValue(['user', 'name'], 'Alice');
             
             expect(handler1).toHaveBeenCalledWith('Alice');
@@ -68,7 +68,7 @@ describe('ListenableData', () => {
         });
 
         it('应该能够监听父级路径', () => {
-            listenableData.addListener(['user'], mockHandler);
+            listenableData.addChangeListener(['user'], mockHandler);
             listenableData.setValue(['user', 'name'], 'Alice');
             
             expect(mockHandler).toHaveBeenCalledWith({
@@ -77,7 +77,7 @@ describe('ListenableData', () => {
         });
 
         it('应该能够监听根路径', () => {
-            listenableData.addListener([], mockHandler);
+            listenableData.addChangeListener([], mockHandler);
             listenableData.setValue(['user', 'name'], 'Alice');
             
             expect(mockHandler).toHaveBeenCalledWith({
@@ -87,14 +87,14 @@ describe('ListenableData', () => {
             });
         });
 
-        it('addListener 应该返回当前值', () => {
+        it('addChangeListener 应该返回当前值', () => {
             listenableData.setValue(['user', 'name'], 'Alice');
-            const result = listenableData.addListener(['user', 'name'], mockHandler);
+            const result = listenableData.addChangeListener(['user', 'name'], mockHandler);
             expect(result).toBe('Alice');
         });
 
         it('监听器触发后还能再次触发', () => {
-            listenableData.addListener(['user', 'name'], mockHandler);
+            listenableData.addChangeListener(['user', 'name'], mockHandler);
             listenableData.setValue(['user', 'name'], 'Alice');
             
             // 第一次触发
@@ -108,12 +108,12 @@ describe('ListenableData', () => {
         });
     });
 
-    describe('removeListener 接口测试', () => {
+    describe('removeChangeListener 接口测试', () => {
         it('应该能够手动移除监听器', () => {
-            listenableData.addListener(['user', 'name'], mockHandler);
+            listenableData.addChangeListener(['user', 'name'], mockHandler);
             
             // 移除监听器
-            listenableData.removeListener(['user', 'name'], mockHandler);
+            listenableData.removeChangeListener(['user', 'name'], mockHandler);
             
             // 设置值，监听器不应该被触发
             listenableData.setValue(['user', 'name'], 'Alice');
@@ -124,11 +124,11 @@ describe('ListenableData', () => {
             const handler1 = vi.fn();
             const handler2 = vi.fn();
             
-            listenableData.addListener(['user', 'name'], handler1);
-            listenableData.addListener(['user', 'name'], handler2);
+            listenableData.addChangeListener(['user', 'name'], handler1);
+            listenableData.addChangeListener(['user', 'name'], handler2);
             
             // 移除其中一个监听器
-            listenableData.removeListener(['user', 'name'], handler1);
+            listenableData.removeChangeListener(['user', 'name'], handler1);
             
             // 设置值，只有handler2应该被触发
             listenableData.setValue(['user', 'name'], 'Alice');
@@ -141,16 +141,16 @@ describe('ListenableData', () => {
             
             // 移除不存在的监听器不应该抛出错误
             expect(() => {
-                listenableData.removeListener(['user', 'name'], nonExistentHandler);
+                listenableData.removeChangeListener(['user', 'name'], nonExistentHandler);
             }).not.toThrow();
         });
 
         it('移除监听器后，再次添加相同监听器应该正常工作', () => {
-            listenableData.addListener(['user', 'name'], mockHandler);
-            listenableData.removeListener(['user', 'name'], mockHandler);
+            listenableData.addChangeListener(['user', 'name'], mockHandler);
+            listenableData.removeChangeListener(['user', 'name'], mockHandler);
             
             // 再次添加相同的监听器
-            listenableData.addListener(['user', 'name'], mockHandler);
+            listenableData.addChangeListener(['user', 'name'], mockHandler);
             listenableData.setValue(['user', 'name'], 'Alice');
             
             expect(mockHandler).toHaveBeenCalledWith('Alice');
@@ -158,8 +158,8 @@ describe('ListenableData', () => {
         });
 
         it('移除监听器后，节点清理应该正常工作', () => {
-            listenableData.addListener(['user', 'profile', 'name'], mockHandler);
-            listenableData.removeListener(['user', 'profile', 'name'], mockHandler);
+            listenableData.addChangeListener(['user', 'profile', 'name'], mockHandler);
+            listenableData.removeChangeListener(['user', 'profile', 'name'], mockHandler);
             
             // 设置一个值，然后删除
             listenableData.setValue(['user', 'profile', 'name'], 'Alice');
@@ -171,8 +171,8 @@ describe('ListenableData', () => {
         });
 
         it('移除父级路径的监听器应该正常工作', () => {
-            listenableData.addListener(['user'], mockHandler);
-            listenableData.removeListener(['user'], mockHandler);
+            listenableData.addChangeListener(['user'], mockHandler);
+            listenableData.removeChangeListener(['user'], mockHandler);
             
             // 设置值，监听器不应该被触发
             listenableData.setValue(['user', 'name'], 'Alice');
@@ -180,8 +180,8 @@ describe('ListenableData', () => {
         });
 
         it('移除根路径的监听器应该正常工作', () => {
-            listenableData.addListener([], mockHandler);
-            listenableData.removeListener([], mockHandler);
+            listenableData.addChangeListener([], mockHandler);
+            listenableData.removeChangeListener([], mockHandler);
             
             // 设置值，监听器不应该被触发
             listenableData.setValue(['user', 'name'], 'Alice');
@@ -189,11 +189,11 @@ describe('ListenableData', () => {
         });
 
         it('移除监听器后，仍然能添加监听器', () => {
-            listenableData.addListener(['user', 'name'], mockHandler);
-            listenableData.removeListener(['user', 'name'], mockHandler);
+            listenableData.addChangeListener(['user', 'name'], mockHandler);
+            listenableData.removeChangeListener(['user', 'name'], mockHandler);
             
             // 重新添加监听器
-            listenableData.addListener(['user', 'name'], mockHandler);
+            listenableData.addChangeListener(['user', 'name'], mockHandler);
             listenableData.setValue(['user', 'name'], 'Alice');
             
             // 第一次触发
@@ -389,7 +389,7 @@ describe('ListenableData', () => {
             const handler = vi.fn();
             
             // 添加监听器
-            listenableData.addListener(['user', 'age'], handler);
+            listenableData.addChangeListener(['user', 'age'], handler);
             
             // 先设置为数字
             listenableData.setValue(['user', 'age'], 25);
@@ -397,7 +397,7 @@ describe('ListenableData', () => {
             expect(handler).toHaveBeenCalledTimes(1);
             
             // 重新添加监听器（因为第一次触发后自动删除了）
-            listenableData.addListener(['user', 'age'], handler);
+            listenableData.addChangeListener(['user', 'age'], handler);
             
             // 转换为对象
             const userAge = { value: 25, unit: 'years' };
@@ -417,7 +417,7 @@ describe('ListenableData', () => {
 
         it('删除值时应该触发监听器', () => {
             listenableData.setValue(['user', 'name'], 'Alice');
-            listenableData.addListener(['user', 'name'], mockHandler);
+            listenableData.addChangeListener(['user', 'name'], mockHandler);
             listenableData.setValue(['user', 'name'], null);
             
             expect(mockHandler).toHaveBeenCalledWith(undefined);
@@ -486,9 +486,9 @@ describe('ListenableData', () => {
             const handler2 = () => callOrder.push('handler2');
             const handler3 = () => callOrder.push('handler3');
             
-            listenableData.addListener(['user', 'name'], handler1);
-            listenableData.addListener(['user'], handler2);
-            listenableData.addListener([], handler3);
+            listenableData.addChangeListener(['user', 'name'], handler1);
+            listenableData.addChangeListener(['user'], handler2);
+            listenableData.addChangeListener([], handler3);
             
             listenableData.setValue(['user', 'name'], 'Alice');
             
@@ -538,6 +538,207 @@ describe('ListenableData', () => {
             listenableData.setValue(deepPath, 'deep value');
             
             expect(listenableData.getValue(deepPath)).toBe('deep value');
+        });
+    });
+
+    describe('NewKeyListener 测试', () => {
+        it('应该能够添加 NewKeyListener 并触发回调', () => {
+            const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
+            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            
+            // 设置一个新键
+            listenableData.setValue(['user', 'name'], 'Alice');
+            
+            expect(newKeyHandler).toHaveBeenCalledWith('name', 'Alice');
+            expect(newKeyHandler).toHaveBeenCalledTimes(1);
+        });
+
+        it('NewKeyListener 应该返回 ChangeListener 并自动添加', () => {
+            const changeHandler = vi.fn();
+            const newKeyHandler = vi.fn().mockReturnValue(changeHandler);
+            
+            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            
+            // 设置一个新键
+            listenableData.setValue(['user', 'name'], 'Alice');
+            
+            // 验证 NewKeyListener 被调用
+            expect(newKeyHandler).toHaveBeenCalledWith('name', 'Alice');
+            
+            // 验证返回的 ChangeListener 被自动添加
+            listenableData.setValue(['user', 'name'], 'Bob');
+            expect(changeHandler).toHaveBeenCalledWith('Bob');
+        });
+
+        it('NewKeyListener 返回 undefined 时不应该添加监听器', () => {
+            const newKeyHandler = vi.fn().mockReturnValue(undefined);
+            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            
+            // 设置一个新键
+            listenableData.setValue(['user', 'name'], 'Alice');
+            
+            // 验证 NewKeyListener 被调用
+            expect(newKeyHandler).toHaveBeenCalledWith('name', 'Alice');
+            
+            // 再次设置值，不应该有监听器被触发
+            listenableData.setValue(['user', 'name'], 'Bob');
+            // 这里无法直接验证，但确保不会抛出错误
+        });
+
+        it('应该能够添加多个 NewKeyListener', () => {
+            const handler1 = vi.fn().mockReturnValue(vi.fn());
+            const handler2 = vi.fn().mockReturnValue(vi.fn());
+            
+            listenableData.addNewKeyListener(['user'], handler1);
+            listenableData.addNewKeyListener(['user'], handler2);
+            
+            // 设置一个新键
+            listenableData.setValue(['user', 'name'], 'Alice');
+            
+            expect(handler1).toHaveBeenCalledWith('name', 'Alice');
+            expect(handler2).toHaveBeenCalledWith('name', 'Alice');
+        });
+
+        it('NewKeyListener 应该只在创建新键时触发', () => {
+            const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
+            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            
+            // 第一次设置，应该触发
+            listenableData.setValue(['user', 'name'], 'Alice');
+            expect(newKeyHandler).toHaveBeenCalledWith('name', 'Alice');
+            expect(newKeyHandler).toHaveBeenCalledTimes(1);
+            
+            // 再次设置同一个键，不应该触发
+            listenableData.setValue(['user', 'name'], 'Bob');
+            expect(newKeyHandler).toHaveBeenCalledTimes(1);
+        });
+
+        it('NewKeyListener 应该能够监听父级路径', () => {
+            const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
+            listenableData.addNewKeyListener(['user', 'profile'], newKeyHandler);
+            
+            // 在父级路径下创建新键
+            listenableData.setValue(['user', 'profile', 'age'], 25);
+            
+            expect(newKeyHandler).toHaveBeenCalledWith('age', 25);
+        });
+
+        it('NewKeyListener 应该能够监听根路径', () => {
+            const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
+            listenableData.addNewKeyListener([], newKeyHandler);
+            
+            // 在根路径下创建新键
+            listenableData.setValue(['user'], { name: 'Alice' });
+            
+            expect(newKeyHandler).toHaveBeenCalledWith('user', { name: 'Alice' });
+        });
+
+        it('应该能够移除 NewKeyListener', () => {
+            const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
+            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            
+            // 移除监听器
+            listenableData.removeNewKeyListener(['user'], newKeyHandler);
+            
+            // 设置新键，监听器不应该被触发
+            listenableData.setValue(['user', 'name'], 'Alice');
+            expect(newKeyHandler).not.toHaveBeenCalled();
+        });
+
+        it('移除 NewKeyListener 后，其他监听器应该正常工作', () => {
+            const handler1 = vi.fn().mockReturnValue(vi.fn());
+            const handler2 = vi.fn().mockReturnValue(vi.fn());
+            
+            listenableData.addNewKeyListener(['user'], handler1);
+            listenableData.addNewKeyListener(['user'], handler2);
+            
+            // 移除其中一个监听器
+            listenableData.removeNewKeyListener(['user'], handler1);
+            
+            // 设置新键，只有handler2应该被触发
+            listenableData.setValue(['user', 'name'], 'Alice');
+            expect(handler1).not.toHaveBeenCalled();
+            expect(handler2).toHaveBeenCalledWith('name', 'Alice');
+        });
+
+        it('移除不存在的 NewKeyListener 应该不会报错', () => {
+            const nonExistentHandler = vi.fn();
+            
+            // 移除不存在的监听器不应该抛出错误
+            expect(() => {
+                listenableData.removeNewKeyListener(['user'], nonExistentHandler);
+            }).not.toThrow();
+        });
+
+        it('NewKeyListener 应该能够处理复杂对象值', () => {
+            const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
+            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            
+            const complexValue = {
+                name: 'Alice',
+                age: 25,
+                address: {
+                    city: 'Beijing',
+                    country: 'China'
+                }
+            };
+            
+            listenableData.setValue(['user', 'profile'], complexValue);
+            
+            expect(newKeyHandler).toHaveBeenCalledWith('profile', complexValue);
+        });
+
+        it('NewKeyListener 应该能够处理数组值', () => {
+            const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
+            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            
+            const arrayValue = ['Alice', 'Bob', 'Charlie'];
+            listenableData.setValue(['user', 'friends'], arrayValue);
+            
+            expect(newKeyHandler).toHaveBeenCalledWith('friends', arrayValue);
+        });
+
+        it('NewKeyListener 应该能够处理基本类型值', () => {
+            const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
+            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            
+            // 测试字符串
+            listenableData.setValue(['user', 'name'], 'Alice');
+            expect(newKeyHandler).toHaveBeenCalledWith('name', 'Alice');
+            
+            // 测试数字
+            listenableData.setValue(['user', 'age'], 25);
+            expect(newKeyHandler).toHaveBeenCalledWith('age', 25);
+            
+            // 测试布尔值
+            listenableData.setValue(['user', 'active'], true);
+            expect(newKeyHandler).toHaveBeenCalledWith('active', true);
+        });
+
+        it('NewKeyListener 和 ChangeListener 应该能够同时工作', () => {
+            const changeHandler = vi.fn();
+            const newKeyHandler = vi.fn().mockReturnValue(changeHandler);
+            
+            // 添加两种监听器
+            listenableData.addChangeListener(['user', 'name'], changeHandler);
+            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            
+            // 设置新键
+            listenableData.setValue(['user', 'name'], 'Alice');
+            
+            // 验证 NewKeyListener 被触发
+            expect(newKeyHandler).toHaveBeenCalledWith('name', 'Alice');
+            // 验证 ChangeListener 被触发
+            expect(changeHandler).toHaveBeenCalledWith('Alice');
+        });
+
+        it('NewKeyListener 应该能够处理空字符串作为键', () => {
+            const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
+            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            
+            listenableData.setValue(['user', ''], 'empty key value');
+            
+            expect(newKeyHandler).toHaveBeenCalledWith('', 'empty key value');
         });
     });
 }); 

@@ -104,11 +104,11 @@ function createListenableDataInternal(data: ListenableData, basePath?: string[])
             setValue = undefined
         }
 
-        const initialValue = data.addListener(fullPath, onValueChange)
+        const initialValue = data.addChangeListener(fullPath, onValueChange)
         onValueChange(initialValue)
 
         onCleanup(() => {
-            data.removeListener(fullPath, onValueChange)
+            data.removeChangeListener(fullPath, onValueChange)
         })
 
         return getter
