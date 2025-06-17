@@ -1,5 +1,5 @@
 import { createSignal, onCleanup, Accessor } from "solid-js"
-import { ListenableData } from "./listenable_data"
+import { ReactiveData } from "./reactive_data"
 
 
 export type PickMutable<T> = {
@@ -61,13 +61,13 @@ export interface UseSignalFunction<T> {
 }
 
 export interface SubFunction<T> {
-    <K1 extends KeyOf<W<T>>>(k1: Part<W<T>, K1>): ListanableDataSolid<W<T>[K1]>;
-    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>): ListanableDataSolid<W<W<T>[K1]>[K2]>;
-    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>, K3 extends KeyOf<W<W<W<T>[K1]>[K2]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>, k3: Part<W<W<W<T>[K1]>[K2]>, K3>): ListanableDataSolid<W<W<W<T>[K1]>[K2]>[K3]>;
+    <K1 extends KeyOf<W<T>>>(k1: Part<W<T>, K1>): ReactiveDataSolid<W<T>[K1]>;
+    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>): ReactiveDataSolid<W<W<T>[K1]>[K2]>;
+    <K1 extends KeyOf<W<T>>, K2 extends KeyOf<W<W<T>[K1]>>, K3 extends KeyOf<W<W<W<T>[K1]>[K2]>>>(k1: Part<W<T>, K1>, k2: Part<W<W<T>[K1]>, K2>, k3: Part<W<W<W<T>[K1]>[K2]>, K3>): ReactiveDataSolid<W<W<W<T>[K1]>[K2]>[K3]>;
 }
 
 // 定义返回值类型
-export interface ListanableDataSolid<T> {
+export interface ReactiveDataSolid<T> {
     setValue: SetValueFunction<T>;
     getValue: GetValueFunction<T>;
     useSignal: UseSignalFunction<T>;
@@ -75,18 +75,18 @@ export interface ListanableDataSolid<T> {
 }
 
 interface CreateListenableDataFunction {
-    <T>(): ListanableDataSolid<T | undefined>;
-    <T>(initialValue: T): ListanableDataSolid<T>;
+    <T>(): ReactiveDataSolid<T | undefined>;
+    <T>(initialValue: T): ReactiveDataSolid<T>;
 }
 
-export const createListenableData: CreateListenableDataFunction = (initialValue?: any) => {
-    const data = new ListenableData();
+export const createReactiveData: CreateListenableDataFunction = (initialValue?: any) => {
+    const data = new ReactiveData();
     data.setValue([], initialValue);
 
-    return createListenableDataInternal(data);
+    return createReactiveDataInternal(data);
 }
 
-function createListenableDataInternal(data: ListenableData, basePath?: string[]) {
+function createReactiveDataInternal(data: ReactiveData, basePath?: string[]) {
     function useSignal(...path: string[]) {
         const fullPath = basePath ? [...basePath, ...path] : path;
 
@@ -124,6 +124,6 @@ function createListenableDataInternal(data: ListenableData, basePath?: string[])
         setValue,
         getValue: (...path: string[]) => data.getValue(basePath ? [...basePath, ...path] : path),
         useSignal,
-        sub: (...path: string[]) => createListenableDataInternal(data, basePath ? [...basePath, ...path] : path),
+        sub: (...path: string[]) => createReactiveDataInternal(data, basePath ? [...basePath, ...path] : path),
     }
 }

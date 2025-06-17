@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { createRoot } from 'solid-js'
-import { createListenableData } from '../listenable_data_solid'
+import { createReactiveData } from '../reactive_data_solid'
 
 // 定义测试用的类型
 interface User {
@@ -28,7 +28,7 @@ interface AppState {
 
 describe('createListenableData 强类型测试', () => {
   it('应该支持强类型的路径约束', () => {
-    const store = createListenableData<AppState>();
+    const store = createReactiveData<AppState>();
     
     // 设置完整状态
     store.setValue({ 
@@ -74,9 +74,9 @@ describe('createListenableData 强类型测试', () => {
     const user = store.getValue('user'); // 类型应该是 User | undefined
     const userName = store.getValue('user', 'name'); // 类型应该是 string | undefined
     const userAge = store.getValue('user', 'age'); // 类型应该是 number | undefined
-    const userEmail = store.getValue('user', 'email'); // 类型应该是 string | undefined (可选)
-    const metadata = store.getValue('metadata'); // 类型应该是 metadata 对象 | undefined (可选)
-    const version = store.getValue('metadata', 'version'); // 类型应该是 string | undefined (可选)
+    store.getValue('user', 'email'); // 类型应该是 string | undefined (可选)
+    store.getValue('metadata'); // 类型应该是 metadata 对象 | undefined (可选)
+    store.getValue('metadata', 'version'); // 类型应该是 string | undefined (可选)
     
     expect(typeof user).toBe('object');
     expect(typeof userName).toBe('string');
@@ -84,7 +84,7 @@ describe('createListenableData 强类型测试', () => {
   });
 
   it('应该支持 useSignal 的强类型（包括可选字段）', () => {
-    const store = createListenableData<AppState>();
+    const store = createReactiveData<AppState>();
     
     createRoot(() => {
       const userSignal = store.useSignal('user'); // 类型应该是 () => User | undefined
@@ -131,7 +131,7 @@ describe('createListenableData 强类型测试', () => {
   });
 
   it('应该正确处理数组类型（不允许深度索引）', () => {
-    const store = createListenableData<AppState>();
+    const store = createReactiveData<AppState>();
     
     // 可以设置整个数组
     store.setValue('items', ['item1', 'item2', 'item3']);
@@ -146,7 +146,7 @@ describe('createListenableData 强类型测试', () => {
   });
 
   it('应该支持空路径获取整个状态', () => {
-    const store = createListenableData<AppState>();
+    const store = createReactiveData<AppState>();
     
     const initialState: AppState = {
       user: {
@@ -176,7 +176,7 @@ describe('createListenableData 强类型测试', () => {
   });
 
   it('应该正确处理缺少可选字段的情况', () => {
-    const store = createListenableData<AppState>();
+    const store = createReactiveData<AppState>();
     
     // 设置一个不包含可选字段的用户
     store.setValue('user', { 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { createRoot, createEffect } from 'solid-js'
-import { createListenableData } from '../listenable_data_solid'
+import { createReactiveData } from '../reactive_data_solid'
 
 interface UserData {
     user?: {
@@ -18,14 +18,14 @@ interface UserData {
 
 describe('createListenableData', () => {
     it('应该能够创建可监听的数据', () => {
-        const { getValue } = createListenableData<any>()
+        const { getValue } = createReactiveData<any>()
 
         // 初始值应该是 undefined
         expect(getValue('test')).toBeUndefined()
     })
 
     it('应该能够设置和获取值', () => {
-        const { getValue, setValue } = createListenableData<UserData>()
+        const { getValue, setValue } = createReactiveData<UserData>()
 
         // 设置值
         setValue('user', 'name', 'Alice')
@@ -35,7 +35,7 @@ describe('createListenableData', () => {
     })
 
     it('应该具有响应性 - 当值改变时应该更新', () => {
-        const { useSignal, setValue } = createListenableData<UserData>()
+        const { useSignal, setValue } = createReactiveData<UserData>()
         setValue('user', 'name', 'Alice')
         let lastName = undefined as any;
         const dispose = createRoot(dispose => {
@@ -61,7 +61,7 @@ describe('createListenableData', () => {
 
     describe('sub 函数', () => {
         it('应该能够创建子级可监听数据对象', () => {
-            const { sub, setValue } = createListenableData<UserData>()
+            const { sub, setValue } = createReactiveData<UserData>()
             
             // 设置初始数据
             setValue('user', 'name', 'Alice')
@@ -76,7 +76,7 @@ describe('createListenableData', () => {
         })
 
         it('子对象应该能够独立设置和获取值', () => {
-            const { sub, getValue } = createListenableData<UserData>()
+            const { sub, getValue } = createReactiveData<UserData>()
             
             // 创建 user 子对象
             const userSub = sub('user')
@@ -95,7 +95,7 @@ describe('createListenableData', () => {
         })
 
         it('子对象应该具有响应性', () => {
-            const { sub, setValue } = createListenableData<UserData>()
+            const { sub, setValue } = createReactiveData<UserData>()
             
             const userSub = sub('user')
             setValue('user', 'name', 'Alice')
@@ -123,7 +123,7 @@ describe('createListenableData', () => {
         })
 
         it('应该支持多层嵌套的子对象', () => {
-            const { sub, setValue, getValue } = createListenableData<UserData>()
+            const { sub, setValue, getValue } = createReactiveData<UserData>()
             
             // 设置初始数据
             setValue('user', 'profile', 'age', 25)
@@ -149,7 +149,7 @@ describe('createListenableData', () => {
         })
 
         it('子对象的响应性应该与父对象同步', () => {
-            const { sub, setValue } = createListenableData<UserData>()
+            const { sub, setValue } = createReactiveData<UserData>()
             
             const userSub = sub('user')
             const profileSub = userSub.sub('profile')
@@ -181,7 +181,7 @@ describe('createListenableData', () => {
         })
 
         it('子对象应该能够处理不存在的路径', () => {
-            const { sub } = createListenableData<UserData>()
+            const { sub } = createReactiveData<UserData>()
             
             const userSub = sub('user')
             const profileSub = userSub.sub('profile')
@@ -196,7 +196,7 @@ describe('createListenableData', () => {
         })
 
         it('子对象应该能够处理复杂的数据结构', () => {
-            const { sub, setValue } = createListenableData<UserData>()
+            const { sub, setValue } = createReactiveData<UserData>()
             
             // 设置复杂数据结构
             setValue('user', 'profile', 'age', 25)

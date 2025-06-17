@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ListenableData, ChangeListener } from '../listenable_data';
+import { ReactiveData, ChangeListener } from '../reactive_data';
 
 describe('ListenableData', () => {
-    let listenableData: ListenableData;
+    let listenableData: ReactiveData;
     let mockHandler: ChangeListener;
 
     beforeEach(() => {
-        listenableData = new ListenableData();
+        listenableData = new ReactiveData();
         mockHandler = vi.fn();
     });
 
@@ -544,7 +544,7 @@ describe('ListenableData', () => {
     describe('NewKeyListener 测试', () => {
         it('应该能够添加 NewKeyListener 并触发回调', () => {
             const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
-            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            listenableData.addKeyAdditionListener(['user'], newKeyHandler);
             
             // 设置一个新键
             listenableData.setValue(['user', 'name'], 'Alice');
@@ -557,7 +557,7 @@ describe('ListenableData', () => {
             const changeHandler = vi.fn();
             const newKeyHandler = vi.fn().mockReturnValue(changeHandler);
             
-            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            listenableData.addKeyAdditionListener(['user'], newKeyHandler);
             
             // 设置一个新键
             listenableData.setValue(['user', 'name'], 'Alice');
@@ -572,7 +572,7 @@ describe('ListenableData', () => {
 
         it('NewKeyListener 返回 undefined 时不应该添加监听器', () => {
             const newKeyHandler = vi.fn().mockReturnValue(undefined);
-            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            listenableData.addKeyAdditionListener(['user'], newKeyHandler);
             
             // 设置一个新键
             listenableData.setValue(['user', 'name'], 'Alice');
@@ -589,8 +589,8 @@ describe('ListenableData', () => {
             const handler1 = vi.fn().mockReturnValue(vi.fn());
             const handler2 = vi.fn().mockReturnValue(vi.fn());
             
-            listenableData.addNewKeyListener(['user'], handler1);
-            listenableData.addNewKeyListener(['user'], handler2);
+            listenableData.addKeyAdditionListener(['user'], handler1);
+            listenableData.addKeyAdditionListener(['user'], handler2);
             
             // 设置一个新键
             listenableData.setValue(['user', 'name'], 'Alice');
@@ -601,7 +601,7 @@ describe('ListenableData', () => {
 
         it('NewKeyListener 应该只在创建新键时触发', () => {
             const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
-            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            listenableData.addKeyAdditionListener(['user'], newKeyHandler);
             
             // 第一次设置，应该触发
             listenableData.setValue(['user', 'name'], 'Alice');
@@ -615,7 +615,7 @@ describe('ListenableData', () => {
 
         it('NewKeyListener 应该能够监听父级路径', () => {
             const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
-            listenableData.addNewKeyListener(['user', 'profile'], newKeyHandler);
+            listenableData.addKeyAdditionListener(['user', 'profile'], newKeyHandler);
             
             // 在父级路径下创建新键
             listenableData.setValue(['user', 'profile', 'age'], 25);
@@ -625,7 +625,7 @@ describe('ListenableData', () => {
 
         it('NewKeyListener 应该能够监听根路径', () => {
             const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
-            listenableData.addNewKeyListener([], newKeyHandler);
+            listenableData.addKeyAdditionListener([], newKeyHandler);
             
             // 在根路径下创建新键
             listenableData.setValue(['user'], { name: 'Alice' });
@@ -635,10 +635,10 @@ describe('ListenableData', () => {
 
         it('应该能够移除 NewKeyListener', () => {
             const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
-            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            listenableData.addKeyAdditionListener(['user'], newKeyHandler);
             
             // 移除监听器
-            listenableData.removeNewKeyListener(['user'], newKeyHandler);
+            listenableData.removeKeyAdditionListener(['user'], newKeyHandler);
             
             // 设置新键，监听器不应该被触发
             listenableData.setValue(['user', 'name'], 'Alice');
@@ -649,11 +649,11 @@ describe('ListenableData', () => {
             const handler1 = vi.fn().mockReturnValue(vi.fn());
             const handler2 = vi.fn().mockReturnValue(vi.fn());
             
-            listenableData.addNewKeyListener(['user'], handler1);
-            listenableData.addNewKeyListener(['user'], handler2);
+            listenableData.addKeyAdditionListener(['user'], handler1);
+            listenableData.addKeyAdditionListener(['user'], handler2);
             
             // 移除其中一个监听器
-            listenableData.removeNewKeyListener(['user'], handler1);
+            listenableData.removeKeyAdditionListener(['user'], handler1);
             
             // 设置新键，只有handler2应该被触发
             listenableData.setValue(['user', 'name'], 'Alice');
@@ -666,13 +666,13 @@ describe('ListenableData', () => {
             
             // 移除不存在的监听器不应该抛出错误
             expect(() => {
-                listenableData.removeNewKeyListener(['user'], nonExistentHandler);
+                listenableData.removeKeyAdditionListener(['user'], nonExistentHandler);
             }).not.toThrow();
         });
 
         it('NewKeyListener 应该能够处理复杂对象值', () => {
             const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
-            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            listenableData.addKeyAdditionListener(['user'], newKeyHandler);
             
             const complexValue = {
                 name: 'Alice',
@@ -690,7 +690,7 @@ describe('ListenableData', () => {
 
         it('NewKeyListener 应该能够处理数组值', () => {
             const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
-            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            listenableData.addKeyAdditionListener(['user'], newKeyHandler);
             
             const arrayValue = ['Alice', 'Bob', 'Charlie'];
             listenableData.setValue(['user', 'friends'], arrayValue);
@@ -700,7 +700,7 @@ describe('ListenableData', () => {
 
         it('NewKeyListener 应该能够处理基本类型值', () => {
             const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
-            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            listenableData.addKeyAdditionListener(['user'], newKeyHandler);
             
             // 测试字符串
             listenableData.setValue(['user', 'name'], 'Alice');
@@ -721,7 +721,7 @@ describe('ListenableData', () => {
             
             // 添加两种监听器
             listenableData.addChangeListener(['user', 'name'], changeHandler);
-            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            listenableData.addKeyAdditionListener(['user'], newKeyHandler);
             
             // 设置新键
             listenableData.setValue(['user', 'name'], 'Alice');
@@ -734,7 +734,7 @@ describe('ListenableData', () => {
 
         it('NewKeyListener 应该能够处理空字符串作为键', () => {
             const newKeyHandler = vi.fn().mockReturnValue(vi.fn());
-            listenableData.addNewKeyListener(['user'], newKeyHandler);
+            listenableData.addKeyAdditionListener(['user'], newKeyHandler);
             
             listenableData.setValue(['user', ''], 'empty key value');
             
