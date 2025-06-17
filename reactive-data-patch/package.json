@@ -1,0 +1,32 @@
+{
+  "name": "reactive-data-patch",
+  "version": "1.0.0",
+  "description": "Batch update and patch merging for reactive data",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "lint": "eslint src --ext .ts",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "typescript": "^5.3.0",
+    "reactive-data": "workspace:*"
+  },
+  "keywords": [
+    "reactive",
+    "data",
+    "patch",
+    "batch",
+    "merge",
+    "game",
+    "state"
+  ],
+  "author": "",
+  "license": "MIT"
+} 
