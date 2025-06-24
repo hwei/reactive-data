@@ -80,9 +80,8 @@ describe('mergePatches', () => {
         }); // 删除操作应保留为 null
     });
 
-    it('应该处理空数组', () => {
-        const result = mergePatches([]);
-        expect(result).toEqual({});
+    it('应该在传入空数组时抛出错误', () => {
+        expect(() => mergePatches([])).toThrow('patches is empty');
     });
 
     it('应该处理嵌套路径中的删除操作', () => {

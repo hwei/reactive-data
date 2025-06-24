@@ -99,24 +99,6 @@ describe('mergePatches 与 ReactiveData.setValue 等效性测试', () => {
         expect(reactiveData1.getValue([])).toEqual(reactiveData2.getValue([]));
     });
 
-    it('应该处理空数组的情况', () => {
-        const patches: DataPatch[] = [];
-
-        // 方法1: 使用 mergePatches 合并后一次性 setValue
-        const reactiveData1 = new ReactiveData();
-        const mergedData = mergePatches(patches);
-        reactiveData1.setValue([], mergedData);
-
-        // 方法2: 逐个 patch 调用 setValue (不会有任何调用)
-        const reactiveData2 = new ReactiveData();
-        for (const patch of patches) {
-            reactiveData2.setValue(patch.path, patch.value);
-        }
-
-        // 验证两种方法的结果一致
-        expect(reactiveData1.getValue([])).toEqual(reactiveData2.getValue([]));
-    });
-
     it('应该验证监听器触发的一致性', () => {
         const patches: DataPatch[] = [
             { path: ['players', 'player1'], value: { name: 'Alice', health: 100 } },

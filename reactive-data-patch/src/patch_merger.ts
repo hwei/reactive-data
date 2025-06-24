@@ -7,7 +7,7 @@ import { DataPatch } from './types';
  */
 export function mergePatches(patches: DataPatch[]): any {
     if (patches.length === 0) {
-        return {};
+        throw new Error('patches is empty');
     }
 
     // 直接使用嵌套对象来存储合并后的数据

@@ -170,8 +170,6 @@ export class ReactiveData {
 function setValueInternal(parentDataNode: DataNode, key: string, value: any, parentReactiveNode: ReactiveNode | undefined): boolean {
     if (value === null) {
         value = undefined;
-    } else if (typeof value === 'object' && !Array.isArray(value) && isEmpty(value)) {
-        value = undefined;
     }
 
     const reactiveNode = parentReactiveNode?.[key];
@@ -216,11 +214,6 @@ function setValueInternal(parentDataNode: DataNode, key: string, value: any, par
             if (setValueInternal(oldValueNormalized, key, value[key], reactiveNode)) {
                 dirty = true;
             }
-        }
-
-        // 新增：递归后如果变成空对象，也要清理
-        if (isEmpty(oldValueNormalized)) {
-            delete parentDataNode[key];
         }
 
     } else if (oldIsComplex) {
